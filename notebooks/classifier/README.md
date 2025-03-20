@@ -5,16 +5,16 @@ This system is designed to classify identity documents (ID cards and passports) 
 ## Dataset
 
 The dataset consists of cropped images of ID documents from 10 different countries:
-- alb_id: Albanian ID cards
-- aze_passport: Azerbaijan passports
-- esp_id: Spanish ID cards
-- est_id: Estonian ID cards
-- fin_id: Finnish ID cards
-- grc_passport: Greek passports
-- lva_passport: Latvian passports
-- rus_internalpassport: Russian internal passports
-- srb_passport: Serbian passports
-- svk_id: Slovak ID cards
+- alb_id (ID Card of Albania)
+- aze_passport (Passport of Azerbaijan) 
+- esp_id (ID Card of Spain) 
+- est_id (ID Card of Estonia) 
+- fin_id (ID Card of Finland) 
+- grc_passport (Passport of Greece) 
+- lva_passport (Passport of Latvia) 
+- rus_internalpassport (Internal passport of Russia) 
+- srb_passport (Passport of Serbia) 
+- svk_id (ID Card of Slovakia) 
 
 Each class contains approximately 100 images.
 

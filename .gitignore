@@ -39,7 +39,11 @@ tests/
 notebooks/actual_roi_instance_segmentation.ipynb
 
 *.pt
+*.onnx
+*.pth
 
+web-app/frontend/node_modules/
+web-app/backend/venv/
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
