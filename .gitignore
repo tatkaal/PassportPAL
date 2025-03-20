@@ -28,6 +28,12 @@ MANIFEST
 
 data/images/*/
 !data/samples/
+data/annotated_images/*
+notebooks/runs/
+notebooks/wandb/
+
+*.pt
+
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
