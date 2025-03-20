@@ -29,8 +29,14 @@ MANIFEST
 data/images/*/
 !data/samples/
 data/annotated_images/*
+data/cropped_images/*
 notebooks/runs/
 notebooks/wandb/
+checkpoints/
+wandb/
+train/
+tests/
+notebooks/actual_roi_instance_segmentation.ipynb
 
 *.pt
 
