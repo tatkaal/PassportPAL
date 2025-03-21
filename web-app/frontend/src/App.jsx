@@ -1,15 +1,17 @@
-import { useState, useEffect, useCallback } from 'react';
-import { useDropzone } from 'react-dropzone';
-import axios from 'axios';
-import { Toaster, toast } from 'react-hot-toast';
+import { useState, useEffect, useCallback } from "react";
+import { useDropzone } from "react-dropzone";
+import axios from "axios";
+import { Toaster, toast } from "react-hot-toast";
 
 // Sample image paths
 const SAMPLE_IMAGES = [
-  'C:/Users/zerad/Desktop/Sujan/PassportPAL/data/samples/sample1.jpg',
-  'C:/Users/zerad/Desktop/Sujan/PassportPAL/data/samples/sample2.jpg',
-  'C:/Users/zerad/Desktop/Sujan/PassportPAL/data/samples/sample3.jpg',
-  'C:/Users/zerad/Desktop/Sujan/PassportPAL/data/samples/sample4.jpg',
-  'C:/Users/zerad/Desktop/Sujan/PassportPAL/data/samples/sample5.jpg'
+  "/samples/sample1.jpg",
+  "/samples/sample2.jpg",
+  "/samples/sample3.jpg",
+  "/samples/sample4.jpg",
+  "/samples/sample5.jpg",
+  "/samples/sample6.jpg",
+  "/samples/sample7.jpg",
 ];
 
 function App() {
@@ -17,21 +19,21 @@ function App() {
   const [preview, setPreview] = useState(null);
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [apiStatus, setApiStatus] = useState('checking');
+  const [apiStatus, setApiStatus] = useState("checking");
   const [thumbnails, setThumbnails] = useState([]);
 
   useEffect(() => {
     const checkApiStatus = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/status');
-        if (response.data.status === 'online') {
-          setApiStatus('online');
-          loadThumbnails(); 
+        const response = await axios.get("http://localhost:5000/api/status");
+        if (response.data.status === "online") {
+          setApiStatus("online");
+          loadThumbnails();
         } else {
-          setApiStatus('offline');
+          setApiStatus("offline");
         }
       } catch (error) {
-        setApiStatus('offline');
+        setApiStatus("offline");
       }
     };
 
@@ -40,14 +42,16 @@ function App() {
         SAMPLE_IMAGES.map(async (path) => {
           try {
             const res = await fetch(
-              `http://localhost:5000/api/get-sample?path=${encodeURIComponent(path)}`,
-              { method: 'GET' }
+              `http://localhost:5000/api/get-sample?path=${encodeURIComponent(
+                path
+              )}`,
+              { method: "GET" }
             );
             if (!res.ok) return null;
             const blob = await res.blob();
             return URL.createObjectURL(blob);
           } catch (error) {
-            console.warn('Failed to load thumbnail:', error);
+            console.warn("Failed to load thumbnail:", error);
             return null;
           }
         })
@@ -71,7 +75,7 @@ function App() {
 
   const { getRootProps, getInputProps, isDragActive, open } = useDropzone({
     onDrop,
-    accept: { 'image/*': ['.jpeg', '.jpg', '.png'] },
+    accept: { "image/*": [".jpeg", ".jpg", ".png"] },
     maxFiles: 1,
     noClick: !!preview,
     noKeyboard: !!preview,
@@ -87,13 +91,15 @@ function App() {
   const handleSelectSampleImage = async (imagePath) => {
     try {
       setLoading(true);
-      const apiUrl = `http://localhost:5000/api/get-sample?path=${encodeURIComponent(imagePath)}`;
+      const apiUrl = `http://localhost:5000/api/get-sample?path=${encodeURIComponent(
+        imagePath
+      )}`;
       const response = await fetch(apiUrl);
       if (!response.ok) {
         throw new Error(`Failed to load sample image: ${response.statusText}`);
       }
       const blob = await response.blob();
-      const fileName = imagePath.split('/').pop() || 'sample.jpg';
+      const fileName = imagePath.split("/").pop() || "sample.jpg";
       const file = new File([blob], fileName, { type: blob.type });
       setImage(file);
 
@@ -102,7 +108,7 @@ function App() {
       reader.readAsDataURL(file);
       setResult(null);
     } catch (error) {
-      toast.error('Failed to load sample image: ' + error.message);
+      toast.error("Failed to load sample image: " + error.message);
     } finally {
       setLoading(false);
     }
@@ -111,26 +117,34 @@ function App() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!image) {
-      toast.error('Please upload an image first');
+      toast.error("Please upload an image first");
       return;
     }
-    if (apiStatus !== 'online') {
-      toast.error('Backend API is not available.');
+    if (apiStatus !== "online") {
+      toast.error("Backend API is not available.");
       return;
     }
     setLoading(true);
 
     const formData = new FormData();
-    formData.append('file', image);
+    formData.append("file", image);
 
     try {
-      const response = await axios.post('http://localhost:5000/api/analyze', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
+      const response = await axios.post(
+        "http://localhost:5000/api/analyze",
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        }
+      );
       setResult(response.data);
-      toast.success('Analysis completed!');
+      toast.success("Analysis completed!");
     } catch (error) {
-      toast.error(`Error analyzing image: ${error.response?.data?.detail || error.message}`);
+      toast.error(
+        `Error analyzing image: ${
+          error.response?.data?.detail || error.message
+        }`
+      );
     } finally {
       setLoading(false);
     }
@@ -142,29 +156,33 @@ function App() {
       <div className="container mx-auto py-6 md:py-10 px-4 md:px-6 max-w-7xl">
         <header className="mb-8">
           <h1 className="text-4xl font-bold text-center text-primary-800 mb-2">
-            PassportPAL - ID Document Analyzer
+            PassportPAL - ID Document Classifier
           </h1>
           <p className="text-center text-primary-600">
-            Upload an ID document to detect and classify it using AI
+            Upload an ID document to detect and classify it using simple CNN classifier
           </p>
           <div className="flex justify-center mt-2">
             <div
               className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                  ${apiStatus === 'online'
-                    ? 'bg-green-100 text-green-800'
-                    : apiStatus === 'offline'
-                      ? 'bg-red-100 text-red-800'
-                      : 'bg-yellow-100 text-yellow-800'}`}
+                  ${
+                    apiStatus === "online"
+                      ? "bg-green-100 text-green-800"
+                      : apiStatus === "offline"
+                      ? "bg-red-100 text-red-800"
+                      : "bg-yellow-100 text-yellow-800"
+                  }`}
             >
               <span
                 className={`h-2 w-2 mr-1 rounded-full 
-                    ${apiStatus === 'online'
-                      ? 'bg-green-400'
-                      : apiStatus === 'offline'
-                        ? 'bg-red-400'
-                        : 'bg-yellow-400'}`}
+                    ${
+                      apiStatus === "online"
+                        ? "bg-green-400"
+                        : apiStatus === "offline"
+                        ? "bg-red-400"
+                        : "bg-yellow-400"
+                    }`}
               />
-              {apiStatus === 'checking' ? 'Connecting...' : `API ${apiStatus}`}
+              {apiStatus === "checking" ? "Connecting..." : `API ${apiStatus}`}
             </div>
           </div>
         </header>
@@ -173,11 +191,15 @@ function App() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
           {/* LEFT PANEL */}
           <div className="bg-white rounded-lg shadow-lg p-6">
-            <h2 className="text-2xl font-semibold text-primary-800 mb-4">Upload Document</h2>
+            <h2 className="text-2xl font-semibold text-primary-800 mb-4">
+              Upload Document
+            </h2>
 
             {/* Sample Images */}
             <div className="mb-4">
-              <h3 className="text-sm font-medium text-gray-700 mb-2">Try a sample image:</h3>
+              <h3 className="text-sm font-medium text-gray-700 mb-2">
+                Try a sample image:
+              </h3>
               <div className="flex space-x-2 overflow-x-auto pb-2">
                 {SAMPLE_IMAGES.map((imgPath, index) => (
                   <button
@@ -206,7 +228,11 @@ function App() {
             <div
               {...getRootProps()}
               className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors
-                ${isDragActive ? 'border-primary-500 bg-primary-50' : 'border-gray-300 hover:border-primary-500'}`}
+                ${
+                  isDragActive
+                    ? "border-primary-500 bg-primary-50"
+                    : "border-gray-300 hover:border-primary-500"
+                }`}
             >
               <input {...getInputProps()} />
               {preview ? (
@@ -217,15 +243,15 @@ function App() {
                     alt="Preview"
                     className="mx-auto rounded-lg shadow-md"
                     style={{
-                      maxHeight: '500px', // bigger for portrait
-                      width: 'auto',
-                      maxWidth: '100%'
+                      maxHeight: "500px", // bigger for portrait
+                      width: "auto",
+                      maxWidth: "100%",
                     }}
                   />
                   <div className="mt-4 flex justify-center space-x-4">
                     <button
                       onClick={handleSubmit}
-                      disabled={loading || apiStatus !== 'online'}
+                      disabled={loading || apiStatus !== "online"}
                       className="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {loading ? (
@@ -254,7 +280,7 @@ function App() {
                           Analyzing...
                         </span>
                       ) : (
-                        'Analyze Image'
+                        "Analyze Image"
                       )}
                     </button>
                     <button
@@ -285,7 +311,9 @@ function App() {
                     />
                   </svg>
                   <p className="text-gray-600">
-                    {isDragActive ? 'Drop the image here...' : 'Drag & drop an ID document here, or click to browse'}
+                    {isDragActive
+                      ? "Drop the image here..."
+                      : "Drag & drop an ID document here, or click to browse"}
                   </p>
                   <p className="text-sm text-gray-500">Supports JPEG, PNG</p>
                 </div>
@@ -295,21 +323,25 @@ function App() {
 
           {/* RIGHT PANEL */}
           <div className="bg-white rounded-lg shadow-lg p-6">
-            <h2 className="text-2xl font-semibold text-primary-800 mb-4">Analysis Results</h2>
+            <h2 className="text-2xl font-semibold text-primary-800 mb-4">
+              Analysis Results
+            </h2>
             {result ? (
               <div className="space-y-4">
                 {result.segmentation && (
                   <div className="p-4 bg-gradient-to-r from-primary-50 to-primary-100 rounded-lg">
-                    <h3 className="font-medium text-primary-800 mb-2">Detected Document</h3>
+                    <h3 className="font-medium text-primary-800 mb-2">
+                      Detected Document
+                    </h3>
                     <div className="relative">
                       <img
                         src={`data:image/jpeg;base64,${result.segmentation}`}
                         alt="Segmentation Result"
                         className="mx-auto rounded-lg shadow-md"
                         style={{
-                          maxHeight: '700px', // bigger portrait
-                          width: 'auto',
-                          maxWidth: '100%'
+                          maxHeight: "700px", // bigger portrait
+                          width: "auto",
+                          maxWidth: "100%",
                         }}
                       />
                     </div>
@@ -318,37 +350,44 @@ function App() {
 
                 {/* Show classification results (top 3) in a more spacious UI */}
                 <div className="p-4 bg-gradient-to-r from-primary-50 to-primary-100 rounded-lg">
-                  <h3 className="font-medium text-primary-800 mb-2">Predictions</h3>
-                  {result.top3_predictions && result.top3_predictions.map((prediction, index) => (
-                    <div key={index} className="mb-3 last:mb-0">
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="font-medium text-primary-800">
-                          {index === 0 && '🥇 '}
-                          {index === 1 && '🥈 '}
-                          {index === 2 && '🥉 '}
-                          {prediction.class}
-                        </span>
-                        <span className="text-sm font-semibold text-primary-600">
-                          {(prediction.confidence * 100).toFixed(1)}%
-                        </span>
+                  <h3 className="font-medium text-primary-800 mb-2">
+                    Predictions
+                  </h3>
+                  {result.top3_predictions &&
+                    result.top3_predictions.map((prediction, index) => (
+                      <div key={index} className="mb-3 last:mb-0">
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="font-medium text-primary-800">
+                            {index === 0 && "🥇 "}
+                            {index === 1 && "🥈 "}
+                            {index === 2 && "🥉 "}
+                            {prediction.class}
+                          </span>
+                          <span className="text-sm font-semibold text-primary-600">
+                            {(prediction.confidence * 100).toFixed(1)}%
+                          </span>
+                        </div>
+                        <div className="w-full bg-gray-200 rounded-full h-2.5">
+                          <div
+                            className="h-2.5 rounded-full bg-primary-600"
+                            style={{
+                              width: `${(prediction.confidence * 100).toFixed(
+                                1
+                              )}%`,
+                            }}
+                          />
+                        </div>
                       </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2.5">
-                        <div
-                          className="h-2.5 rounded-full bg-primary-600"
-                          style={{
-                            width: `${(prediction.confidence * 100).toFixed(1)}%`,
-                          }}
-                        />
-                      </div>
-                    </div>
-                  ))}
+                    ))}
                 </div>
               </div>
             ) : loading ? (
               <div className="flex items-center justify-center h-64">
                 <div className="text-center">
                   <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
-                  <p className="mt-4 text-primary-600">Processing document...</p>
+                  <p className="mt-4 text-primary-600">
+                    Processing document...
+                  </p>
                 </div>
               </div>
             ) : (
@@ -377,7 +416,9 @@ function App() {
         </div>
 
         <footer className="mt-8 text-center text-gray-500 text-sm">
-          <p>PassportPAL &copy; {new Date().getFullYear()} - Advanced ID Document Analysis</p>
+          <p>
+            PassportPAL &copy; {new Date().getFullYear()} - ID Document Analysis Tool
+          </p>
         </footer>
       </div>
     </div>
