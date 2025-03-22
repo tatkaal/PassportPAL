@@ -1,7 +1,7 @@
 # 🛂 PassportPAL: Multi-stage Identity Document Classification System 
 
-<div align=\"center\">
-  <img src=\"dataset/samples/analyzed_image_ui.jpg\" alt=\"PassportPAL User Interface\">
+<div align="center">
+  <img src="dataset/samples/analyzed_image_ui.jpg" alt="PassportPAL User Interface">
   <p><em>PassportPAL in action: Intelligent ID document classification with precision and ease</em></p>
 </div>
 
@@ -70,8 +70,8 @@ PassportPAL/
 
 ## 🚀 Running the Application
 
-<div align=\"center\">
-  <img src=\"dataset/samples/ui_landing_page.jpg\" alt=\"Analyzed Image in UI\" width=\"80%\">
+<div align="center">
+  <img src="dataset/samples/ui_landing_page.jpg" alt="Analyzed Image in UI" width="80%">
   <p><em>Landing page: The UI displays an option to upload images and sample images to choose from.</em></p>
 </div>
 
@@ -182,12 +182,12 @@ flowchart TB
     ModelTraining -->|Trained Models| Classification
 
     %% === SUBGRAPHS (DOCKER CONTAINERS) ===
-    subgraph FrontendDocker[\"🐳 Frontend (Docker)\"]
+    subgraph FrontendDocker["🐳 Frontend (Docker)"]
         direction TB
         UI
     end
 
-    subgraph BackendDocker[\"🐳 Backend (Docker)\"]
+    subgraph BackendDocker["🐳 Backend (Docker)"]
         direction TB
         API
         Segmentation
@@ -228,8 +228,8 @@ PassportPAL implements a **two-stage** machine learning pipeline:
 2. Generate pixel-perfect masks  
 3. Extract the region for further processing  
 
-<div align=\"center\">
-  <img src=\"dataset/samples/running_segmentation.jpg\" alt=\"Document Segmentation Process\" width=\"80%\">
+<div align="center">
+  <img src="dataset/samples/running_segmentation.jpg" alt="Document Segmentation Process" width="80%">
   <p><em>Document segmentation in action: Precisely identifying document boundaries</em></p>
 </div>
 
@@ -239,8 +239,8 @@ PassportPAL implements a **two-stage** machine learning pipeline:
 - **Data Split**: 215 training, 61 validation, 31 testing  
 - **mAP50**: 99.5% on validation data  
 
-<div align=\"center\">
-  <img src=\"dataset/samples/segmentaion-training-metrics-chart.png\" alt=\"Segmentation Training Metrics\" width=\"80%\">
+<div align="center">
+  <img src="dataset/samples/segmentaion-training-metrics-chart.png" alt="Segmentation Training Metrics" width="80%">
   <p><em>Segmentation model training metrics</em></p>
 </div>
 
@@ -248,8 +248,8 @@ PassportPAL implements a **two-stage** machine learning pipeline:
 
 Classifies the segmented document into one of 10 document types.
 
-<div align=\"center\">
-  <img src=\"dataset/samples/classification_training_set_samples.png\" alt=\"Classification Dataset Samples\" width=\"70%\">
+<div align="center">
+  <img src="dataset/samples/classification_training_set_samples.png" alt="Classification Dataset Samples" width="70%">
   <p><em>Classification dataset samples</em></p>
 </div>
 
@@ -265,8 +265,8 @@ Classifies the segmented document into one of 10 document types.
 - **Recall**: 98.67%  
 - **F1 Score**: 98.67%
 
-<div align=\"center\">
-  <img src=\"dataset/samples/training-validation-loss-and-accuracy-graph-classification.png\" alt=\"Classification Training Metrics\" width=\"70%\">
+<div align="center">
+  <img src="dataset/samples/training-validation-loss-and-accuracy-graph-classification.png" alt="Classification Training Metrics" width="70%">
   <p><em>Classification model training metrics</em></p>
 </div>
 
@@ -274,10 +274,10 @@ Classifies the segmented document into one of 10 document types.
 
 ### Dataset Challenges
 
-<div align=\"center\">
-  <img src=\"dataset/samples/dataset-variation1-muticolor-object.jpg\" alt=\"Dataset Variation 1\" width=\"30%\">
-  <img src=\"dataset/samples/dataset-variation2-spoof-card-image-and-background-text.jpg\" alt=\"Dataset Variation 2\" width=\"30%\">
-  <img src=\"dataset/samples/dataset-variation3-with-multiple-edges.jpg\" alt=\"Dataset Variation 3\" width=\"30%\">
+<div align="center">
+  <img src="dataset/samples/dataset-variation1-muticolor-object.jpg" alt="Dataset Variation 1" width="30%">
+  <img src="dataset/samples/dataset-variation2-spoof-card-image-and-background-text.jpg" alt="Dataset Variation 2" width="30%">
+  <img src="dataset/samples/dataset-variation3-with-multiple-edges.jpg" alt="Dataset Variation 3" width="30%">
   <p><em>Dataset variations: Handling multicolor objects, background text interference, and multiple edges</em></p>
 </div>
 
