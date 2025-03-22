@@ -136,7 +136,7 @@ chmod +x ./scripts/start_without_docker.sh
 
 ### Model Download
 
-If you need to manually download the machine learning models:
+If you want to manually download the machine learning models:
 
 ```bash
 # On Windows
