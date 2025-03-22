@@ -1,11 +1,11 @@
-# 🛂 PassportPAL: Advanced Identity Document Classification System
+# 🛂 PassportPAL: Multi-stage Identity Document Classification System
 
 <div align="center">
-  <img src="dataset/samples/ui_landing_page.jpg" alt="PassportPAL User Interface" width="80%">
+  <img src="dataset/samples/analyzed_image_ui.jpg" alt="PassportPAL User Interface" width="80%">
   <p><em>PassportPAL in action: Intelligent ID document classification with precision and ease</em></p>
 </div>
 
-PassportPAL is an intelligent document classification system that leverages cutting-edge deep learning to accurately detect, segment, and classify identity documents from different countries. Built with a modern tech stack and containerized for seamless deployment, PassportPAL offers a complete solution for automated document processing.
+PassportPAL is a simple multi-stage document classification system that leverages cutting-edge deep learning to accurately detect, segment, and classify identity documents from different countries. Built with a modern tech stack and containerized for seamless deployment, PassportPAL offers a complete solution for automated identity document processing.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.12](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org/downloads/release/python-3120/)
@@ -34,15 +34,15 @@ PassportPAL is an intelligent document classification system that leverages cutt
 6. [Running the Application](#-running-the-application)
 7. [API Reference](#-api-reference)
 8. [Development Guide](#-development-guide)
-9. [Troubleshooting](#-troubleshooting)
-10. [License](#-license)
+9. [License](#-license)
 
 ## 🏗️ System Architecture
 
 PassportPAL employs a sophisticated architecture that seamlessly integrates machine learning with modern web technologies:
 
 ```mermaid
-graph TD
+flowchart LR
+    %% === MAIN FLOW ===
     User[👤 User] -->|Uploads Image| UI[📱 React Frontend]
     UI -->|HTTP Request| API[⚙️ FastAPI Backend]
     API -->|Processes Image| Segmentation[🔍 YOLOv11 Segmentation Model]
@@ -50,28 +50,38 @@ graph TD
     Classification -->|Prediction Results| API
     API -->|JSON Response| UI
     UI -->|Display Results| User
-    
-    subgraph "🐳 Docker Container: Frontend"
+
+    %% === DATASET & TRAINING ===
+    Dataset[(📊 Document Dataset)] -->|Training Data| ModelTraining[🧠 Model Training Pipeline]
+    ModelTraining -->|Trained Models| Segmentation
+    ModelTraining -->|Trained Models| Classification
+
+    %% === SUBGRAPHS (DOCKER CONTAINERS) ===
+    subgraph FrontendDocker["🐳 Frontend Container (Docker)"]
+
+        direction TB
         UI
     end
-    
-    subgraph "🐳 Docker Container: Backend"
+
+    subgraph BackendDocker["🐳 Backend (Docker)"]
+        direction TB
         API
         Segmentation
         Classification
     end
-    
-    Dataset[(📊 Document Dataset)] -->|Training Data| ModelTraining[🧠 Model Training Pipeline]
-    ModelTraining -->|Trained Models| Segmentation
-    ModelTraining -->|Trained Models| Classification
-    
-    style User fill:#f9f,stroke:#333,stroke-width:2px
-    style UI fill:#bbf,stroke:#333,stroke-width:2px
-    style API fill:#bfb,stroke:#333,stroke-width:2px
-    style Segmentation fill:#fbb,stroke:#333,stroke-width:2px
-    style Classification fill:#fbf,stroke:#333,stroke-width:2px
-    style Dataset fill:#ff9,stroke:#333,stroke-width:2px
-    style ModelTraining fill:#b9f,stroke:#333,stroke-width:2px
+
+    %% === STYLING NODES ===
+    style User fill:#AEDFF7,stroke:#333,stroke-width:2px,color:#000
+    style UI fill:#D8BFD8,stroke:#333,stroke-width:2px,color:#000
+    style API fill:#C1E1C1,stroke:#333,stroke-width:2px,color:#000
+    style Segmentation fill:#F7C6C7,stroke:#333,stroke-width:2px,color:#000
+    style Classification fill:#FAD7A0,stroke:#333,stroke-width:2px,color:#000
+    style Dataset fill:#FFF3B0,stroke:#333,stroke-width:2px,color:#000
+    style ModelTraining fill:#CBB2F5,stroke:#333,stroke-width:2px,color:#000
+
+    %% === STYLING SUBGRAPHS ===
+    style FrontendDocker fill:#FFFFFF,stroke:#888,stroke-width:2px,color:#000
+    style BackendDocker fill:#FFFFFF,stroke:#888,stroke-width:2px,color:#000
 ```
 
 The application follows a modern microservices architecture:
@@ -218,7 +228,7 @@ The dataset presented several challenges that the models needed to overcome:
 
 ### Segmentation Model Performance
 
-Final training metrics at epoch 144:
+training metrics:
 ```
 metrics/precision(B): 0.98274
 metrics/recall(B): 1.0
@@ -335,8 +345,8 @@ PassportPAL/
 ## 🚀 Running the Application
 
 <div align="center">
-  <img src="dataset/samples/analyzed_image_ui.jpg" alt="Analyzed Image in UI" width="80%">
-  <p><em>Analysis results: The UI displays classification results and segmentation output</em></p>
+  <img src="dataset/samples/ui_landing_page.jpg" alt="Analyzed Image in UI" width="80%">
+  <p><em>Landing page: The UI displays options to upload image and sample images to choose from.</em></p>
 </div>
 
 ### Prerequisites
@@ -353,7 +363,7 @@ PassportPAL/
    cd passportpal
    ```
 
-2. **Start the application using Docker Compose**:
+2. **Start the application using below script that downloas the Models and Docker Compose**:
 
    On Windows:
    ```powershell
@@ -365,6 +375,7 @@ PassportPAL/
    chmod +x ./scripts/start.sh
    ./scripts/start.sh
    ```
+ (Build time is roughly 3 minutes with and image size of around 3Gb)
 
 3. **Access the web interface**:
    Open your browser and navigate to:
@@ -379,10 +390,6 @@ PassportPAL/
 3. **Results**: View the classification result, confidence scores, and segmentation output
 4. **Sample Gallery**: Try pre-loaded examples by clicking on the sample images
 
-<div align="center">
-  <img src="dataset/samples/unclassified_image-during-inference-in-frontend.jpg" alt="Unclassified Image During Inference" width="70%">
-  <p><em>Inference in progress: The UI provides visual feedback during document processing</em></p>
-</div>
 
 ## 🔌 API Reference
 
@@ -467,24 +474,6 @@ If you need to manually download the machine learning models:
 chmod +x ./scripts/download_models.sh
 ./scripts/download_models.sh
 ```
-
-## 🔧 Troubleshooting
-
-### Common Issues
-
-1. **Docker containers fail to start**:
-   - Ensure Docker and Docker Compose are installed and running
-   - Check if ports 80 and 5000 are available on your system
-   - Review container logs with `docker-compose logs`
-
-2. **Model loading errors**:
-   - Verify model downloads using the provided scripts
-   - Check backend logs for specific error messages
-
-3. **Image processing fails**:
-   - Ensure the image format is supported (JPG, PNG, etc.)
-   - Check if the image contains a clearly visible document
-   - Try using one of the sample images as a test
 
 ### Clean Docker Environment
 
