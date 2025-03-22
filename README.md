@@ -1,74 +1,283 @@
-# PassportPAL - ID Document Classification System
+# 🛂 PassportPAL: Advanced Identity Document Classification System
 
-PassportPAL is a Simple document classification system that uses deep learning to accurately detect, segement and classify identity documents from different countries.
+<div align="center">
+  <img src="dataset/samples/ui_landing_page.jpg" alt="PassportPAL User Interface" width="80%">
+  <p><em>PassportPAL in action: Intelligent ID document classification with precision and ease</em></p>
+</div>
 
-## Table of Contents
+PassportPAL is an intelligent document classification system that leverages cutting-edge deep learning to accurately detect, segment, and classify identity documents from different countries. Built with a modern tech stack and containerized for seamless deployment, PassportPAL offers a complete solution for automated document processing.
 
-1. [Features](#features)
-2. [Technology Stack](#technology-stack)
-3. [Architecture](#architecture)
-4. [Project Structure](#project-structure)
-5. [Machine Learning Approach](#machine-learning-approach)
-6. [Running the Application](#running-the-application)
-7. [API Reference](#api-reference)
-8. [Development Guide](#development-guide)
-9. [Troubleshooting](#troubleshooting)
-10. [License](#license)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python 3.12](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org/downloads/release/python-3120/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.104.0-009688.svg)](https://fastapi.tiangolo.com)
+[![PyTorch](https://img.shields.io/badge/PyTorch-2.0.1-EE4C2C.svg)](https://pytorch.org)
+[![React 18](https://img.shields.io/badge/React-18.2.0-61DAFB.svg)](https://reactjs.org)
+[![Docker](https://img.shields.io/badge/Docker-Compose-2496ED.svg)](https://www.docker.com)
 
-## Features
+## 🌟 Features
 
-- **Document Detection and Segmentation**: Automatically locates and extracts ID documents from images
-- **Document Classification**: Identifies 10 different types of ID documents with high accuracy
-- **Interactive UI**: User-friendly interface for uploading and analyzing documents
-- **Sample Gallery**: Pre-loaded sample images for immediate testing
-- **Real-time Processing**: Fast analysis with visual feedback
-- **Containerized Deployment**: Easy setup with Docker and Docker Compose
+- **📊 Dual-Stage ML Pipeline**: Document segmentation followed by precise classification
+- **🔍 High Accuracy**: Classification performance with 98.67% accuracy, 98.75% precision, 98.67% recall, and 98.67% F1 score
+- **⚡ Real-time Processing**: Optimized for speed with efficient inference
+- **🖼️ Interactive UI**: Intuitive interface for document upload and analysis
+- **🧰 Sample Gallery**: Pre-loaded examples for immediate testing
+- **🚢 Containerized Deployment**: Simplified setup with Docker and Docker Compose
+- **📝 Comprehensive Documentation**: Detailed guides for developers and users
 
-## Technology Stack
+## 📋 Table of Contents
 
-### Backend
+1. [System Architecture](#-system-architecture)
+2. [Technology Stack](#-technology-stack)
+3. [Machine Learning Pipeline](#-machine-learning-pipeline)
+4. [Performance Metrics](#-performance-metrics)
+5. [Project Structure](#-project-structure)
+6. [Running the Application](#-running-the-application)
+7. [API Reference](#-api-reference)
+8. [Development Guide](#-development-guide)
+9. [Troubleshooting](#-troubleshooting)
+10. [License](#-license)
+
+## 🏗️ System Architecture
+
+PassportPAL employs a sophisticated architecture that seamlessly integrates machine learning with modern web technologies:
+
+```mermaid
+graph TD
+    User[👤 User] -->|Uploads Image| UI[📱 React Frontend]
+    UI -->|HTTP Request| API[⚙️ FastAPI Backend]
+    API -->|Processes Image| Segmentation[🔍 YOLOv11 Segmentation Model]
+    Segmentation -->|Cropped Document| Classification[🏷️ CNN Classification Model]
+    Classification -->|Prediction Results| API
+    API -->|JSON Response| UI
+    UI -->|Display Results| User
+    
+    subgraph "🐳 Docker Container: Frontend"
+        UI
+    end
+    
+    subgraph "🐳 Docker Container: Backend"
+        API
+        Segmentation
+        Classification
+    end
+    
+    Dataset[(📊 Document Dataset)] -->|Training Data| ModelTraining[🧠 Model Training Pipeline]
+    ModelTraining -->|Trained Models| Segmentation
+    ModelTraining -->|Trained Models| Classification
+    
+    style User fill:#f9f,stroke:#333,stroke-width:2px
+    style UI fill:#bbf,stroke:#333,stroke-width:2px
+    style API fill:#bfb,stroke:#333,stroke-width:2px
+    style Segmentation fill:#fbb,stroke:#333,stroke-width:2px
+    style Classification fill:#fbf,stroke:#333,stroke-width:2px
+    style Dataset fill:#ff9,stroke:#333,stroke-width:2px
+    style ModelTraining fill:#b9f,stroke:#333,stroke-width:2px
+```
+
+The application follows a modern microservices architecture:
+
+- **Frontend**: React-based SPA served by Nginx
+- **Backend API**: FastAPI service that processes images and runs ML models
+- **ML Pipeline**: Two-stage process with YOLOv11-seg for document detection and CNN for classification
+- **Containerization**: Docker Compose for orchestrating services and ensuring consistent deployment
+
+## 🔧 Technology Stack
+
+### Backend Technologies
 
 - **Python 3.12**: Core programming language
 - **FastAPI**: High-performance API framework
-- **PyTorch**: Deep learning framework
-- **OpenCV**: Computer vision operations
-- **Ultralytics YOLOv11**: Dataset preparation for Classification
-- **Albumentations**: Image augmentation library
+- **PyTorch**: Deep learning framework for model training and inference
+- **OpenCV**: Computer vision operations for image preprocessing
+- **Ultralytics YOLOv11**: State-of-the-art object detection and segmentation
+- **Albumentations**: Comprehensive image augmentation library
 
-### Frontend
+### Frontend Technologies
 
-- **React 18**: UI framework
-- **TailwindCSS**: Utility-first CSS framework
-- **Vite**: Next-generation frontend tooling
-- **React-Dropzone**: File upload handling
-- **Axios**: HTTP client
+- **React 18**: Modern, component-based UI framework
+- **TailwindCSS**: Utility-first CSS framework for sleek design
+- **Vite**: Next-generation frontend tooling for faster development
+- **React-Dropzone**: Intuitive file upload component
+- **Axios**: Promise-based HTTP client for API requests
 
-### DevOps
+### DevOps & Deployment
 
-- **Docker**: Containerization
+- **Docker**: Application containerization
 - **Docker Compose**: Multi-container orchestration
-- **Nginx**: Web server and reverse proxy
+- **Nginx**: High-performance web server and reverse proxy
 
-## Architecture
+## 🧠 Machine Learning Pipeline
 
-PassportPAL employs a two-stage machine learning pipeline:
+PassportPAL implements a sophisticated two-stage machine learning pipeline:
 
-1. **Document Segmentation**: The YOLOv11 segmentation model detects and extracts the document region from the input image.
-2. **Document Classification**: The extracted document is passed to a Simple CNN classifier that identifies the specific document type.
+<div align="center">
+  <img src="dataset/samples/running_segmentation.jpg" alt="Document Segmentation Process" width="80%">
+  <p><em>Document segmentation in action: Precisely identifying document boundaries</em></p>
+</div>
 
+### Stage 1: Document Segmentation (YOLOv11)
 
-The application follows a standard client-server architecture:
+The first stage uses YOLOv11's instance segmentation capabilities to:
+1. Detect the document's presence in the image
+2. Generate pixel-perfect masks around the document
+3. Extract the document region for further processing
 
-- **Frontend**: React SPA served by Nginx
-- **Backend API**: FastAPI service that processes images and runs ML models
-- **ML Models**: Custom trained YOLOv11-seg and CNN models
+<div align="center">
+  <img src="dataset/samples/cropped_image_using_segmentation_model.png" alt="Cropped Document Using Segmentation" width="60%">
+  <p><em>Document extraction: From raw image to precisely cropped document</em></p>
+</div>
 
-## Project Structure
+#### Segmentation Model Training Details
+
+- **Model Architecture**: YOLOv11m-seg
+- **Dataset**: 307 custom-annotated images
+- **Data Split**: 215 training, 61 validation, 31 testing images
+- **Annotation Process**: Initial auto-annotation with Roboflow followed by manual verification
+- **Training Performance**: Achieved 99.5% mAP50 and 99.3% mAP50-95 on validation data
+
+<div align="center">
+  <img src="dataset/samples/segmentaion-training-metrics-chart.png" alt="Segmentation Training Metrics" width="80%">
+  <p><em>Segmentation model training metrics: Tracking loss and performance over training epochs</em></p>
+</div>
+
+#### Data Augmentation Strategy
+
+Custom augmentation pipeline generated 7 variations of each source image:
+- 50% probability of vertical flip
+- Rotation variations: none, 90° clockwise, 90° counter-clockwise, 180°
+- Random rotation between -15° and +15°
+- Random shear between -10° and +10° horizontally and vertically
+- Random brightness adjustment (±24%)
+- Random exposure adjustment (±15%)
+
+<div align="center">
+  <img src="dataset/samples/visualize_augmented_dataset_sample.png" alt="Augmented Dataset Samples" width="70%">
+  <p><em>Data augmentation in action: Creating diverse training examples from original images</em></p>
+</div>
+
+### Stage 2: Document Classification (CNN)
+
+The second stage takes the segmented document and classifies it into one of 10 document types:
+
+<div align="center">
+  <img src="dataset/samples/classification_training_set_samples.png" alt="Classification Dataset Samples" width="70%">
+  <p><em>Classification dataset: The 10 document types identified by PassportPAL</em></p>
+</div>
+
+#### Classification Model Architecture
+
+A custom Convolutional Neural Network (CNN) with:
+- Input normalization and resize to 224×224 pixels
+- Multiple convolutional layers with batch normalization
+- Global average pooling
+- Dropout for regularization
+- Fully connected output layer with 10 classes
+
+#### Classification Performance
+
+- **Accuracy**: 98.67%
+- **Precision**: 98.75%
+- **Recall**: 98.67%
+- **F1 Score**: 98.67%
+
+<div align="center">
+  <img src="dataset/samples/training-validation-loss-and-accuracy-graph-classification.png" alt="Classification Training Metrics" width="70%">
+  <p><em>Classification model training: Loss and accuracy over epochs</em></p>
+</div>
+
+<div align="center">
+  <img src="dataset/samples/classification-confusion-matrix.png" alt="Classification Confusion Matrix" width="60%">
+  <p><em>Confusion matrix: Visual representation of classification performance across document types</em></p>
+</div>
+
+#### Error Analysis
+
+Our analysis identified a small number of misclassifications, primarily between visually similar document types:
+
+<div align="center">
+  <img src="dataset/samples/classification-misclassified-samples.png" alt="Misclassified Samples" width="70%">
+  <p><em>Misclassification examples: Understanding model limitations for future improvements</em></p>
+</div>
+
+### Dataset Challenges
+
+The dataset presented several challenges that the models needed to overcome:
+
+<div align="center">
+  <img src="dataset/samples/dataset-variation1-muticolor-object.jpg" alt="Dataset Variation: Multicolor Objects" width="45%">
+  <img src="dataset/samples/dataset-variation2-spoof-card-image-and-background-text.jpg" alt="Dataset Variation: Background Text" width="45%">
+  <p><em>Dataset variations: Handling multicolor objects (left) and background text interference (right)</em></p>
+</div>
+
+<div align="center">
+  <img src="dataset/samples/dataset-variation3-with-multiple-edges.jpg" alt="Dataset Variation: Multiple Edges" width="70%">
+  <p><em>Dataset challenge: Documents with multiple edges and complex backgrounds</em></p>
+</div>
+
+## 📊 Performance Metrics
+
+### Segmentation Model Performance
+
+Final training metrics at epoch 144:
+```
+metrics/precision(B): 0.98274
+metrics/recall(B): 1.0
+metrics/mAP50(B): 0.99254
+metrics/mAP50-95(B): 0.99025
+metrics/precision(M): 0.98274
+metrics/recall(M): 1.0
+metrics/mAP50(M): 0.99254
+metrics/mAP50-95(M): 0.99173
+```
+
+Test metrics:
+```
+Class     Images  Instances      Box(P          R      mAP50  mAP50-95)     Mask(P          R      mAP50  mAP50-95):
+all         61         60      0.983          1      0.995      0.993      0.983          1      0.995      0.994
+```
+
+### Classification Model Performance
+
+Training metrics:
+```
+train Loss: 0.0816 Acc: 0.9829
+val Loss: 0.0328 Acc: 0.9933
+```
+
+Test metrics:
+```
+Accuracy: 0.9867
+Precision: 0.9875
+Recall: 0.9867
+F1 Score: 0.9867
+```
+
+Detailed classification report:
+```
+                      precision    recall  f1-score   support
+
+              alb_id       1.00      1.00      1.00        15
+        aze_passport       1.00      1.00      1.00        15
+              esp_id       0.94      1.00      0.97        15
+              est_id       1.00      1.00      1.00        15
+              fin_id       1.00      0.93      0.97        15
+        grc_passport       1.00      1.00      1.00        15
+        lva_passport       1.00      0.93      0.97        15
+rus_internalpassport       1.00      1.00      1.00        15
+        srb_passport       0.94      1.00      0.97        15
+              svk_id       1.00      1.00      1.00        15
+
+            accuracy                           0.99       150
+           macro avg       0.99      0.99      0.99       150
+        weighted avg       0.99      0.99      0.99       150
+```
+
+## 📁 Project Structure
 
 ```
 PassportPAL/
 ├── README.md                  # Main project documentation with setup instructions
-├── LICENSE                    # License file
+├── LICENSE                    # MIT License file
 ├── docker-compose.yml         # Main Docker Compose configuration
 ├── .gitignore                 # Git ignore file
 ├── Task1/                     # Task1 folder
@@ -90,7 +299,7 @@ PassportPAL/
 │   └── segmentation/          # Segmentation model development
 │       ├── roi_instance_segmentation.py  # Segmentation implementation
 │       ├── failed_approaches.py # Documentation of approaches that didn't work
-│       └── PassportPAL-Segmentation-Model/  # Segmentation model files
+│       └── runs/              # Training runs and checkpoints
 │
 ├── scripts/                   # Scripts directory
 │   ├── start.ps1              # Docker startup script (Windows)
@@ -113,68 +322,32 @@ PassportPAL/
 └── frontend/                  # Frontend service
     ├── Dockerfile             # Frontend Docker configuration
     ├── package.json           # NPM package configuration
+    ├── src/                   # React source code
+    │   ├── App.jsx            # Main application component
+    │   ├── main.jsx           # Entry point
+    │   └── index.css          # Global styles
     ├── public/                # Static assets
     │   └── samples/           # Sample images for testing
-    ├── src/                   # React source code
+    ├── nginx.conf             # Nginx configuration
     └── .dockerignore          # Docker ignore file
 ```
 
-## Machine Learning Approach
+## 🚀 Running the Application
 
-### Data Preparation and Model Training
-
-#### Instance Segmentation (Document Detection)
-
-- **Model**: YOLOv11m-seg
-- **Dataset**: 307 images collected and annotated using Roboflow
-- **Data Split**: 215 training, 61 validation, 31 testing images
-- **Annotation Process**: Initial auto-annotation through Roboflow with manual verification
-- **Augmentations**: Following augmentation was applied to create 7 versions of each source image:
-   - 50% probability of vertical flip
-   - Equal probability of one of the following 90-degree rotations: none, clockwise, counter-clockwise, upside-down
-   - Random rotation of between -15 and +15 degrees
-   - Random shear of between -10° to +10° horizontally and -10° to +10° vertically
-   - Random brigthness adjustment of between -24 and +24 percent
-   - Random exposure adjustment of between -15 and +15 percent
-
-#### Document Classification
-
-- **Dataset Creation**: The trained segmentation model was used to crop the region of interest (ROI) containing ID documents from the original dataset
-- **Model Architecture**: Custom CNN classification model
-- **Performance**: 
-
-### Reasoning Behind Technical Choices
-
-1. **Two-Stage Pipeline**: Separating detection and classification provides better modularity and allows optimization of each task independently.
-
-2. **YOLOv11 for Segmentation**:
-
-   - State-of-the-art performance for object detection
-   - Faster inference compared to other segmentation models
-   - Better handling of varied document orientations and backgrounds
-
-3. **Custom CNN for Classification**:
-
-   - Focused specifically on the cropped document regions
-   - Achieves high accuracy by eliminating background noise
-   - Faster inference due to smaller input size (cropped images)
-
-4. **Docker Containerization**:
-   - Ensures consistent environment across development and production
-   - Simplifies deployment and scaling
-   - Isolates dependencies for better maintainability
-
-## Running the Application
+<div align="center">
+  <img src="dataset/samples/analyzed_image_ui.jpg" alt="Analyzed Image in UI" width="80%">
+  <p><em>Analysis results: The UI displays classification results and segmentation output</em></p>
+</div>
 
 ### Prerequisites
 
-- **Docker**
-- **Docker Compose**
+- **Docker** (version 20.10.0 or higher)
+- **Docker Compose** (version 2.0.0 or higher)
+- **Git** (for cloning the repository)
 
-### Step-by-Step Installation
+### Quick Start
 
 1. **Clone the repository**:
-
    ```bash
    git clone https://github.com/tatkaal/passportpal.git
    cd passportpal
@@ -183,13 +356,11 @@ PassportPAL/
 2. **Start the application using Docker Compose**:
 
    On Windows:
-
    ```powershell
    .\scripts\start.ps1
    ```
 
    On Linux/Mac:
-
    ```bash
    chmod +x ./scripts/start.sh
    ./scripts/start.sh
@@ -197,29 +368,23 @@ PassportPAL/
 
 3. **Access the web interface**:
    Open your browser and navigate to:
-
    ```
    http://localhost
    ```
 
-### Manual Development Setup
+### User Workflow
 
-For development purposes, you can run the components separately:
+1. **Upload an image**: Drag and drop or click to select an ID document image
+2. **Processing**: The system automatically detects, segments, and classifies the document
+3. **Results**: View the classification result, confidence scores, and segmentation output
+4. **Sample Gallery**: Try pre-loaded examples by clicking on the sample images
 
-#### Backend and Frontend without Docker:
+<div align="center">
+  <img src="dataset/samples/unclassified_image-during-inference-in-frontend.jpg" alt="Unclassified Image During Inference" width="70%">
+  <p><em>Inference in progress: The UI provides visual feedback during document processing</em></p>
+</div>
 
-On Windows:
-```powershell
-.\scripts\start_without_docker.ps1
-```
-
-On Linux/Mac:
-```bash
-chmod +x ./scripts/start_without_docker.sh
-./scripts/start_without_docker.sh
-```
-
-## API Reference
+## 🔌 API Reference
 
 The backend exposes the following RESTful endpoints:
 
@@ -228,12 +393,9 @@ The backend exposes the following RESTful endpoints:
 Check API and model availability.
 
 **Response:**
-
 ```json
 {
-  "status": "online",
-  "device": "cuda",
-  "gpu_available": true
+  "status": "online"
 }
 ```
 
@@ -244,7 +406,6 @@ Analyze an uploaded document image.
 **Request:** Form data with `file` field containing the image.
 
 **Response:**
-
 ```json
 {
   "class": "fin_id",
@@ -275,23 +436,75 @@ Get a sample image for testing.
 
 **Response:** Binary image data
 
+## 💻 Development Guide
 
-3. **Verify model downloads**:
-   Make sure the machine learning models were downloaded correctly. You can manually download them using:
-   ```bash
-   # On Windows
-   .\scripts\download_models.ps1
-   
-   # On Linux/Mac
-   ./scripts/download_models.sh
-   ```
+### Manual Setup (Without Docker)
 
-## License
+For development purposes, you can run the components separately:
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+#### Backend and Frontend:
 
-## Acknowledgments
+On Windows:
+```powershell
+.\scripts\start_without_docker.ps1
+```
 
-- Ultralytics for the YOLO model
-- Roboflow for simplified dataset annotation
-- The React and FastAPI communities
+On Linux/Mac:
+```bash
+chmod +x ./scripts/start_without_docker.sh
+./scripts/start_without_docker.sh
+```
+
+### Model Download
+
+If you need to manually download the machine learning models:
+
+```bash
+# On Windows
+.\scripts\download_models.ps1
+
+# On Linux/Mac
+chmod +x ./scripts/download_models.sh
+./scripts/download_models.sh
+```
+
+## 🔧 Troubleshooting
+
+### Common Issues
+
+1. **Docker containers fail to start**:
+   - Ensure Docker and Docker Compose are installed and running
+   - Check if ports 80 and 5000 are available on your system
+   - Review container logs with `docker-compose logs`
+
+2. **Model loading errors**:
+   - Verify model downloads using the provided scripts
+   - Check backend logs for specific error messages
+
+3. **Image processing fails**:
+   - Ensure the image format is supported (JPG, PNG, etc.)
+   - Check if the image contains a clearly visible document
+   - Try using one of the sample images as a test
+
+### Clean Docker Environment
+
+If you encounter persistent issues, clean up your Docker environment:
+
+```bash
+# On Windows
+.\scripts\docker-cleanup.ps1
+
+# On Linux/Mac
+./scripts/docker-cleanup.sh
+```
+
+## 📜 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- Ultralytics for the YOLO model architecture
+- Roboflow for simplified dataset annotation tools
+- PyTorch, FastAPI, and React communities for excellent frameworks
+- The open-source community for sharing knowledge and resources
