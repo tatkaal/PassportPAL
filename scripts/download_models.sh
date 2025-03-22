@@ -21,80 +21,78 @@ if [ ! -d "$MODELS_DIR" ]; then
     mkdir -p "$MODELS_DIR"
 fi
 
-# Function to download a file if it doesn't exist
-download_file_if_not_exists() {
-    local url="$1"
-    local output_path="$2"
-    local description="$3"
-    
-    if [ ! -f "$output_path" ]; then
-        echo -e "${YELLOW}Downloading $description...${NC}"
-        if command -v curl &>/dev/null; then
-            if curl -L "$url" -o "$output_path" --silent --fail; then
-                echo -e "${GREEN}Downloaded $description successfully!${NC}"
-                return 0
-            else
-                echo -e "${RED}Error downloading $description${NC}"
-                # Create an empty placeholder file so the application can start
-                touch "$output_path"
-                echo -e "${YELLOW}Created empty placeholder file at $output_path${NC}"
-                return 0
-            fi
-        elif command -v wget &>/dev/null; then
-            if wget -q "$url" -O "$output_path"; then
-                echo -e "${GREEN}Downloaded $description successfully!${NC}"
-                return 0
-            else
-                echo -e "${RED}Error downloading $description${NC}"
-                # Create an empty placeholder file so the application can start
-                touch "$output_path"
-                echo -e "${YELLOW}Created empty placeholder file at $output_path${NC}"
-                return 0
-            fi
-        else
-            echo -e "${RED}Error: Neither curl nor wget is installed. Please install one of them and try again.${NC}"
-            # Create an empty placeholder file so the application can start
-            touch "$output_path"
-            echo -e "${YELLOW}Created empty placeholder file at $output_path${NC}"
-            return 0
-        fi
-    else
-        echo -e "${GREEN}$description already exists: $output_path${NC}"
-        return 0
-    fi
-}
+# Define the required model files
+REQUIRED_FILES=(
+    "custom_instance_segmentation.pt"
+    "custom_cnn_model_scripted.pt"
+    "custom_cnn_model_metadata.json"
+)
 
-# Define model URLs and output paths
-declare -A MODEL_URLS
-MODEL_URLS["yolov5_model,url"]="https://github.com/ultralytics/yolov5/releases/download/v6.1/yolov5s.pt"
-MODEL_URLS["yolov5_model,output_path"]="$MODELS_DIR/yolov5s.pt"
-MODEL_URLS["yolov5_model,description"]="YOLOv5 object detection model"
-
-MODEL_URLS["segmentation_model,url"]="https://github.com/ultralytics/yolov5/releases/download/v6.1/yolov5s-seg.pt"
-MODEL_URLS["segmentation_model,output_path"]="$MODELS_DIR/segment_model.pth"
-MODEL_URLS["segmentation_model,description"]="Segmentation model"
-
-MODEL_URLS["ocr_model,url"]="https://github.com/ultralytics/yolov5/releases/download/v6.1/yolov5s.pt"
-MODEL_URLS["ocr_model,output_path"]="$MODELS_DIR/ocr_model.pth"
-MODEL_URLS["ocr_model,description"]="OCR recognition model"
-
-# Download models
-ALL_SUCCESS=true
-for model in "yolov5_model" "segmentation_model" "ocr_model"; do
-    url="${MODEL_URLS["$model,url"]}"
-    output_path="${MODEL_URLS["$model,output_path"]}"
-    description="${MODEL_URLS["$model,description"]}"
-    
-    if ! download_file_if_not_exists "$url" "$output_path" "$description"; then
-        ALL_SUCCESS=false
+# Check if all models already exist
+ALL_FILES_EXIST=true
+for file in "${REQUIRED_FILES[@]}"; do
+    if [ ! -f "$MODELS_DIR/$file" ]; then
+        ALL_FILES_EXIST=false
+        break
     fi
 done
 
-# Check if all downloads were successful
-if [ "$ALL_SUCCESS" = true ]; then
-    echo -e "${GREEN}All models downloaded successfully!${NC}"
+if [ "$ALL_FILES_EXIST" = true ]; then
+    echo -e "${GREEN}Models already exist, skipping download${NC}"
     exit 0
-else
-    echo -e "${RED}Some models failed to download. Please check your internet connection and try again.${NC}"
+fi
+
+echo -e "${YELLOW}Downloading models from Google Drive...${NC}"
+
+# Create a temporary directory for downloads
+TMP_DIR=$(mktemp -d)
+cd "$TMP_DIR" || { echo -e "${RED}Failed to create temporary directory${NC}"; exit 1; }
+
+# Check if gdown is installed, if not install it
+if ! command -v gdown &> /dev/null && ! python3 -c "import gdown" &> /dev/null; then
+    echo -e "${YELLOW}Installing gdown...${NC}"
+    pip install gdown --quiet
+fi
+
+# Download the models folder
+python -m gdown "https://drive.google.com/drive/folders/1qG6xU7eGEwTXxQWP5L6s2zuJ7FXs3SQB?usp=sharing" --folder
+
+# Find the downloaded directory (usually passportpal_models)
+DOWNLOAD_DIR=$(find . -type d -name "*models" | head -n 1)
+
+if [ -z "$DOWNLOAD_DIR" ]; then
+    echo -e "${RED}Error: Could not find downloaded models directory${NC}"
+    cd "$SCRIPT_DIR" || exit 1
+    rm -rf "$TMP_DIR"
     exit 1
 fi
+
+cd "$DOWNLOAD_DIR" || { echo -e "${RED}Failed to change to downloaded directory${NC}"; exit 1; }
+
+# Verify that downloaded files exist
+ALL_FILES_DOWNLOADED=true
+for file in "${REQUIRED_FILES[@]}"; do
+    if [ ! -f "$file" ]; then
+        echo -e "${RED}Error: Missing file $file after download${NC}"
+        ALL_FILES_DOWNLOADED=false
+        break
+    fi
+done
+
+if [ "$ALL_FILES_DOWNLOADED" = false ]; then
+    cd "$SCRIPT_DIR" || exit 1
+    rm -rf "$TMP_DIR"
+    exit 1
+fi
+
+# Move the models to the correct location
+for file in "${REQUIRED_FILES[@]}"; do
+    mv -f "$file" "$MODELS_DIR/$file"
+done
+
+# Cleanup
+cd "$SCRIPT_DIR" || exit 1
+rm -rf "$TMP_DIR"
+
+echo -e "${GREEN}Models successfully downloaded and moved to $MODELS_DIR!${NC}"
+exit 0

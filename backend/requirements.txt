@@ -1,10 +1,13 @@
-# PyTorch and related packages - use CUDA version based on need
---extra-index-url https://download.pytorch.org/whl/cu121
-torch==2.5.1
-torchvision==0.20.1
+# PyTorch and related packages - CPU only version
+torch==2.5.1+cpu
+torchvision==0.20.1+cpu
+--index-url https://download.pytorch.org/whl/cpu
+
+# Standard packages from PyPI
+--extra-index-url https://pypi.org/simple
 
 # FastAPI and server
-fastapi==0.110.3
+fastapi==0.110.0
 uvicorn==0.34.0
 python-multipart==0.0.20
 

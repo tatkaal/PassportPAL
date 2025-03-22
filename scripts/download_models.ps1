@@ -1,6 +1,3 @@
-# PassportPAL - Download Machine Learning Models
-# This script downloads pre-trained ML models used by the application
-
 # Get the current script directory and backend directory
 $scriptDir = $PSScriptRoot
 $rootDir = Split-Path -Parent $scriptDir
@@ -16,68 +13,83 @@ if (-Not (Test-Path $modelsDir)) {
 # Set to TLS 1.2 for HTTPS downloads
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
-# Function to download a file if it doesn't exist
-function Download-FileIfNotExists {
-    param (
-        [string]$url,
-        [string]$outputPath,
-        [string]$description
-    )
-    
-    if (-Not (Test-Path $outputPath)) {
-        Write-Host "Downloading $description..." -ForegroundColor Yellow
-        try {
-            Invoke-WebRequest -Uri $url -OutFile $outputPath -UseBasicParsing
-            Write-Host "Downloaded $description successfully!" -ForegroundColor Green
-            return $true
-        }
-        catch {
-            Write-Host "Error downloading $description. Please check your internet connection." -ForegroundColor Red
-            # Create an empty placeholder file so the application can start
-            New-Item -ItemType File -Path $outputPath -Force | Out-Null
-            Write-Host "Created empty placeholder file at $outputPath" -ForegroundColor Yellow
-            return $true
-        }
-    } else {
-        Write-Host "$description already exists: $outputPath" -ForegroundColor Green
-        return $true
+# Check if models already exist
+$REQUIRED_FILES = @(
+    "custom_instance_segmentation.pt",
+    "custom_cnn_model_scripted.pt",
+    "custom_cnn_model_metadata.json"
+)
+
+$ALL_FILES_EXIST = $true
+foreach ($file in $REQUIRED_FILES) {
+    if (-not (Test-Path (Join-Path $modelsDir $file))) {
+        $ALL_FILES_EXIST = $false
+        break
     }
 }
 
-# Model URLs - Set up your specific model URLs here
-$modelUrls = @{
-    "yolov5_model" = @{
-        "url" = "https://github.com/ultralytics/yolov5/releases/download/v6.1/yolov5s.pt";
-        "outputPath" = Join-Path $modelsDir "yolov5s.pt";
-        "description" = "YOLOv5 object detection model";
-    };
-    "segmentation_model" = @{
-        "url" = "https://github.com/ultralytics/yolov5/releases/download/v6.1/yolov5s-seg.pt";
-        "outputPath" = Join-Path $modelsDir "segment_model.pth";
-        "description" = "Segmentation model";
-    };
-    "ocr_model" = @{
-        "url" = "https://github.com/ultralytics/yolov5/releases/download/v6.1/yolov5s.pt";
-        "outputPath" = Join-Path $modelsDir "ocr_model.pth";
-        "description" = "OCR recognition model";
-    };
-}
-
-# Download models
-$allSuccess = $true
-foreach ($model in $modelUrls.Keys) {
-    $modelInfo = $modelUrls[$model]
-    $success = Download-FileIfNotExists -url $modelInfo.url -outputPath $modelInfo.outputPath -description $modelInfo.description
-    if (-Not $success) {
-        $allSuccess = $false
-    }
-}
-
-# Check if all downloads were successful
-if ($allSuccess) {
-    Write-Host "All models downloaded successfully!" -ForegroundColor Green
+if ($ALL_FILES_EXIST) {
+    Write-Host "Models already exist, skipping download" -ForegroundColor Green
     exit 0
-} else {
-    Write-Host "Some models failed to download. Please check your internet connection and try again." -ForegroundColor Red
+}
+
+Write-Host "Downloading models from Google Drive..." -ForegroundColor Yellow
+
+# Create a temporary directory for downloads
+$TMP_DIR = New-TemporaryFile | ForEach-Object { 
+    Remove-Item $_ -Force
+    New-Item -ItemType Directory -Path $_ 
+}
+Push-Location $TMP_DIR
+
+# Check if gdown is installed, if not install it
+try {
+    python -c "import gdown" 2>$null
+} catch {
+    Write-Host "Installing gdown..." -ForegroundColor Yellow
+    python -m pip install gdown --quiet
+}
+
+# Download the models folder
+python -m gdown "https://drive.google.com/drive/folders/1qG6xU7eGEwTXxQWP5L6s2zuJ7FXs3SQB?usp=sharing" --folder
+
+# Find the downloaded directory (usually passportpal_models)
+$DOWNLOAD_DIR = Get-ChildItem -Directory -Filter "*models" | Select-Object -First 1
+
+if (-not $DOWNLOAD_DIR) {
+    Write-Host "Error: Could not find downloaded models directory" -ForegroundColor Red
+    Pop-Location
+    Remove-Item -Recurse -Force $TMP_DIR
     exit 1
-} 
+}
+
+Push-Location $DOWNLOAD_DIR.FullName
+
+# Verify that downloaded files exist
+$ALL_FILES_DOWNLOADED = $true
+foreach ($file in $REQUIRED_FILES) {
+    if (-not (Test-Path $file)) {
+        Write-Host "Error: Missing file $file after download" -ForegroundColor Red
+        $ALL_FILES_DOWNLOADED = $false
+        break
+    }
+}
+
+if (-not $ALL_FILES_DOWNLOADED) {
+    Pop-Location
+    Pop-Location
+    Remove-Item -Recurse -Force $TMP_DIR
+    exit 1
+}
+
+# Move the models to the correct location
+foreach ($file in $REQUIRED_FILES) {
+    Move-Item -Force $file (Join-Path $modelsDir $file)
+}
+
+# Cleanup
+Pop-Location
+Pop-Location
+Remove-Item -Recurse -Force $TMP_DIR
+
+Write-Host "Models successfully downloaded and moved to $modelsDir!" -ForegroundColor Green 
