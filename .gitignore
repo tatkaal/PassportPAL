@@ -26,25 +26,16 @@ share/python-wheels/
 *.egg
 MANIFEST
 
-data/images/*/
-!data/samples/
-data/annotated_images/*
-data/cropped_images/*
-data/final_classification_dataset/*
-notebooks/runs/
-notebooks/wandb/
-checkpoints/
-wandb/
-train/
-tests/
-notebooks/actual_roi_instance_segmentation.ipynb
+dataset/images/*/
+dataset/annotated_images/*
+dataset/cropped_images/*
 
 *.pt
 *.onnx
 *.pth
 
-web-app/frontend/node_modules/
-web-app/backend/venv/
+frontend/node_modules/
+backend/venv/
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
