@@ -1,0 +1,99 @@
+# Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+venv/
+ENV/
+env/
+
+# IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Temporary files and logs
+*.log
+*.tmp
+.DS_Store
+tmp/
+temp/
+
+# Git files
+.git/
+.gitignore
+
+# Large data and model files (if they're downloaded during runtime)
+*.h5
+*.pkl
+*.onnx
+*.pt
+samples/
+
+# Test files
+tests/
+test_*.py
+
+# Documentation
+docs/
+README.md
+LICENSE
+
+# Docker specific
+.dockerignore
+Dockerfile
+docker-compose.yml
+
+# Distribution / packaging
+*.egg-info/
+.eggs/
+dist/
+build/
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+coverage.xml
+*.cover
+
+# Development files
+.github
+*.md
+.pytest_cache/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Local development configurations
+.env
+.env.*
+
+# Sample data not used in the container (mounted from host)
+*.jpg
+*.jpeg
+*.png
+*.bmp
+!models/*.pt
+!models/*.json 
