@@ -6,10 +6,60 @@
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
+  color-scheme: light;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Custom scrollbar styles */
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 10px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+.scrollbar-thumb-primary-300::-webkit-scrollbar-thumb {
+  background: #7dcffc;
+}
+
+.scrollbar-thumb-primary-300::-webkit-scrollbar-thumb:hover {
+  background: #38bcf8;
+}
+
+/* Create a smooth transition between colors in gradients */
+.bg-gradient-to-br,
+.bg-gradient-to-r {
+  background-size: 200% 200%;
+  transition: background-position 0.5s ease;
+}
+
+/* Add a subtle shadow to images */
+img {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+img:hover {
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
 } 
