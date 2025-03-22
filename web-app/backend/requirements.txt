@@ -1,15 +1,23 @@
---extra-index-url https://download.pytorch.org/whl/cu126
-torch
-torchvision
-torchaudio
-fastapi
-uvicorn
-python-multipart
-numpy
-opencv-python
-pillow
-python-jose
-pydantic 
-ultralytics
-albumentations
-scikit-learn
+# PyTorch and related packages - use CUDA version based on need
+--extra-index-url https://download.pytorch.org/whl/cu121
+torch==2.5.1
+torchvision==0.20.1
+
+# FastAPI and server
+fastapi==0.110.3
+uvicorn==0.34.0
+python-multipart==0.0.20
+
+# Computer vision and data processing
+numpy==1.26.3
+opencv-python-headless==4.10.0.84
+pillow==10.2.0
+ultralytics==8.3.93
+albumentations==2.0.5
+
+# ML/Data science
+scikit-learn==1.6.1
+
+# Utility
+pydantic==2.9.2
+python-jose==3.4.0

@@ -33,25 +33,78 @@ if ($port5000InUse) {
     Write-Host "Warning: Port 5000 is already in use. The backend service might fail to start." -ForegroundColor Yellow
 }
 
+# Check existing containers and images
+$backendExists = docker ps -a --filter "name=passport-pal-backend" --format "{{.Names}}" | Select-String "passport-pal-backend"
+$frontendExists = docker ps -a --filter "name=passport-pal-frontend" --format "{{.Names}}" | Select-String "passport-pal-frontend"
+$backendImageExists = docker images "web-app-backend" -q
+$frontendImageExists = docker images "web-app-frontend" -q
+
 # Stop any existing containers
 Write-Host "Stopping any existing containers..." -ForegroundColor Cyan
 docker compose down
 
-# Remove existing images to ensure fresh build
-Write-Host "Removing existing images..." -ForegroundColor Cyan
-try {
-    docker image rm web-app-frontend:latest web-app-backend:latest -f
-} catch {
-    Write-Host "No existing images to remove. Continuing..." -ForegroundColor Yellow
+# Ask if user wants to rebuild
+$rebuild = "partial"
+if ($backendImageExists -or $frontendImageExists) {
+    Write-Host "`nExisting images found:" -ForegroundColor Cyan
+    if ($backendImageExists) { Write-Host "- Backend image exists" -ForegroundColor White }
+    if ($frontendImageExists) { Write-Host "- Frontend image exists" -ForegroundColor White }
+    
+    Write-Host "`nRebuild options:" -ForegroundColor Cyan
+    Write-Host "1. Use existing images (fastest)" -ForegroundColor White
+    Write-Host "2. Rebuild only missing or failed images (recommended)" -ForegroundColor White
+    Write-Host "3. Force rebuild all images (slowest)" -ForegroundColor White
+    $option = Read-Host "Select an option (1-3) [2]"
+    
+    if ($option -eq "1") {
+        $rebuild = "none"
+    } elseif ($option -eq "3") {
+        $rebuild = "all"
+    }
 }
 
-# Build and start containers
-Write-Host "Building and starting containers..." -ForegroundColor Cyan
-docker compose up --build -d
+# Conditionally rebuild images
+if ($rebuild -eq "all") {
+    # Force rebuild all
+    Write-Host "Removing existing images for complete rebuild..." -ForegroundColor Cyan
+    if ($backendImageExists) { docker image rm web-app-backend:latest -f }
+    if ($frontendImageExists) { docker image rm web-app-frontend:latest -f }
+    
+    Write-Host "Building all containers from scratch..." -ForegroundColor Cyan
+    docker compose build --no-cache
+    
+} elseif ($rebuild -eq "partial") {
+    # Selective rebuild
+    $buildCommand = "docker compose build"
+    $needRebuild = $false
+    
+    if (-not $backendImageExists) {
+        Write-Host "Backend image not found, will build it..." -ForegroundColor Cyan
+        $buildCommand += " backend"
+        $needRebuild = $true
+    }
+    
+    if (-not $frontendImageExists) {
+        Write-Host "Frontend image not found, will build it..." -ForegroundColor Cyan
+        $buildCommand += " frontend"
+        $needRebuild = $true
+    }
+    
+    if ($needRebuild) {
+        Write-Host "Building only necessary containers..." -ForegroundColor Cyan
+        Invoke-Expression $buildCommand
+    } else {
+        Write-Host "All images exist, skipping build..." -ForegroundColor Green
+    }
+}
+
+# Start the containers
+Write-Host "Starting containers..." -ForegroundColor Cyan
+docker compose up -d
 
 # Wait for services to be ready
 Write-Host "Waiting for services to start..." -ForegroundColor Cyan
-$maxAttempts = 60
+$maxAttempts = 15  # Reduced from 60 to 15 to avoid long wait times
 $attempts = 0
 $backendReady = $false
 $frontendReady = $false
@@ -79,6 +132,10 @@ while (($attempts -lt $maxAttempts) -and (-not ($backendReady -and $frontendRead
         }
     } catch {
         # Not ready yet
+        if ($attempts % 3 -eq 0) {  # Only check logs every 3 attempts
+            Write-Host "Checking frontend logs..." -ForegroundColor Yellow
+            docker logs passport-pal-frontend --tail 5
+        }
     }
 
     if (-not ($backendReady -and $frontendReady)) {
@@ -86,22 +143,32 @@ while (($attempts -lt $maxAttempts) -and (-not ($backendReady -and $frontendRead
     }
 }
 
-if (-not $backendReady) {
+# Check if at least the backend is working
+if ($backendReady -and -not $frontendReady) {
+    Write-Host "Frontend failed to start properly, but backend is working." -ForegroundColor Yellow
+    Write-Host "You can still use the API directly at http://localhost:5000" -ForegroundColor Yellow
+    Write-Host "Checking frontend container logs for issues:" -ForegroundColor Yellow
+    docker logs passport-pal-frontend --tail 20
+    
+    # Ask if user wants to force restart frontend
+    $restart = Read-Host "`nDo you want to try restarting the frontend container? (y/n)"
+    if ($restart -eq "y") {
+        Write-Host "Restarting frontend container..." -ForegroundColor Cyan
+        docker restart passport-pal-frontend
+        Write-Host "Frontend container restarted. Try accessing http://localhost in your browser." -ForegroundColor Green
+    }
+} elseif (-not $backendReady) {
     Write-Host "Error: Backend failed to start properly." -ForegroundColor Red
     docker compose logs backend
     exit 1
 }
 
-if (-not $frontendReady) {
-    Write-Host "Error: Frontend failed to start properly." -ForegroundColor Red
-    docker compose logs frontend
-    exit 1
-}
-
 Write-Host "`nPassportPAL application is now running!" -ForegroundColor Green
-Write-Host "Frontend: http://localhost" -ForegroundColor Yellow
+if ($frontendReady) {
+    Write-Host "Frontend: http://localhost" -ForegroundColor Yellow
+}
 Write-Host "Backend API: http://localhost:5000" -ForegroundColor Yellow
 Write-Host "`nUseful Docker commands:" -ForegroundColor Cyan
 Write-Host "- View logs:        docker compose logs -f" -ForegroundColor Cyan
 Write-Host "- Stop application: docker compose down" -ForegroundColor Cyan
-Write-Host "- Rebuild:         docker compose up --build -d" -ForegroundColor Cyan
+Write-Host "- Cleanup space:    docker system prune -a" -ForegroundColor Cyan

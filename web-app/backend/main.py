@@ -1,6 +1,6 @@
-from fastapi import FastAPI, File, UploadFile, HTTPException, Form, Request, Query
+from fastapi import FastAPI, File, UploadFile, HTTPException, Request, Query
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, Response
+from fastapi.responses import FileResponse
 import cv2
 import numpy as np
 import base64
@@ -10,8 +10,6 @@ import traceback
 import torch
 from ultralytics import YOLO
 import json
-import sys
-import importlib.util
 from dataset import get_transforms
 
 logging.basicConfig(level=logging.INFO)
@@ -21,19 +19,31 @@ app = FastAPI(title="PassportPAL API")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],  # adjust if needed
+    allow_origins=["*"],  # Allow all origins in Docker environment
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 # Adjust these paths to your environment
-SEGMENTATION_MODEL_PATH = r"models\custom_instance_segmentation.pt"
-CLASSIFICATION_MODEL_PATH = r"models\custom_cnn_model_scripted.pt"
-CLASSIFICATION_METADATA_PATH = r"models\custom_cnn_model_metadata.json"
+SEGMENTATION_MODEL_PATH = r"models/custom_instance_segmentation.pt"
+CLASSIFICATION_MODEL_PATH = r"models/custom_cnn_model_scripted.pt"
+CLASSIFICATION_METADATA_PATH = r"models/custom_cnn_model_metadata.json"
 
-DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-logger.info(f"Using device: {DEVICE}")
+def get_device():
+    try:
+        if torch.cuda.is_available():
+            device = torch.device("cuda")
+            logger.info(f"Using GPU: {torch.cuda.get_device_name(0)}")
+        else:
+            device = torch.device("cpu")
+            logger.info("GPU not available, using CPU")
+    except Exception as e:
+        logger.error(f"Error checking GPU: {e}")
+        device = torch.device("cpu")
+    return device
+
+DEVICE = get_device()
 
 def load_metadata(metadata_path):
     with open(metadata_path, 'r') as f:
@@ -86,7 +96,7 @@ def draw_thick_bbox(image, x1, y1, x2, y2, label):
     # 2× thicker than previous (previous was 4, so let's do 8)
     box_thickness = 8
 
-    # 3× bigger text (previous fontScale ~1.3 => let’s do ~4.0)
+    # 3× bigger text (previous fontScale ~1.3 => let's do ~4.0)
     font_scale = 4.0
 
     # Heavier text thickness
@@ -299,28 +309,33 @@ async def get_status():
 @app.get("/api/get-sample")
 async def get_sample_image(path: str = Query(...)):
     try:
-        # Get the absolute path to the frontend/public directory
-        frontend_public_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'frontend', 'public'))
+        # Sample paths to check - frontend samples are the primary location
+        sample_paths = [
+            # Docker production path (frontend samples mounted in nginx)
+            os.path.abspath(os.path.join(os.path.dirname(__file__), 'frontend', 'public', path.lstrip('/'))),
+            # Alternative paths for development environments
+            os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'frontend', 'public', path.lstrip('/'))),
+            os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'frontend', 'public', path.lstrip('/')))
+        ]
         
-        # Remove any leading slash from the path parameter
-        clean_path = path.lstrip('/')
+        full_path = None
+        for test_path in sample_paths:
+            logger.info(f"Testing sample path: {test_path}")
+            if os.path.exists(test_path):
+                full_path = test_path
+                logger.info(f"Found sample at: {full_path}")
+                break
         
-        # Construct the full path
-        full_path = os.path.join(frontend_public_dir, clean_path)
-        
-        # Verify the path is within the public directory
-        if not os.path.abspath(full_path).startswith(frontend_public_dir):
-            raise HTTPException(status_code=400, detail="Invalid sample path")
-            
-        if not os.path.exists(full_path):
+        if not full_path:
+            logger.error(f"404: Sample file not found at any of: {sample_paths}")
             raise HTTPException(status_code=404, detail="Sample file not found")
-
+            
         response = FileResponse(full_path)
         # For dev CORS
-        response.headers["Access-Control-Allow-Origin"] = "http://localhost:5173"
+        response.headers["Access-Control-Allow-Origin"] = "*"
         return response
     except Exception as e:
-        logger.error(str(e))
+        logger.error(f"Error in get_sample_image: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 if __name__ == "__main__":

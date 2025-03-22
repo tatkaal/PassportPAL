@@ -1,31 +1,44 @@
-# Build stage
-FROM node:18-alpine as build
+# Build stage - use smaller Node image
+FROM node:22-alpine as build
 
 WORKDIR /app
 
-# Copy package.json and install dependencies
-COPY package.json package-lock.json ./
-RUN npm ci
+# Copy package files
+COPY package*.json ./
 
-# Copy all files
-COPY . .
+# Install dependencies with clean npm cache
+RUN npm ci && npm cache clean --force
+
+# Copy source files
+COPY public/ public/
+COPY src/ src/
+COPY vite.config.js .
+COPY postcss.config.js .
+COPY tailwind.config.js .
+COPY index.html .
 
 # Build the React application
-RUN npm run build
+RUN npm run build && \
+    rm -rf node_modules
 
-# Production stage
+# Production stage - use smaller Alpine nginx
 FROM nginx:alpine
 
-# Copy the build from the previous stage
+# Configure nginx - copy before other operations for layer caching
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# Copy built app
 COPY --from=build /app/dist /usr/share/nginx/html
 
-# Add a fallback index.html if the build directory is empty
+# Create fallback index.html for better user experience
 RUN if [ ! -f /usr/share/nginx/html/index.html ]; then \
     echo '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>PassportPAL</title></head><body><div id="root">Loading PassportPAL application...</div></body></html>' > /usr/share/nginx/html/index.html; \
-    fi
+    fi && \
+    rm -rf /var/cache/apk/* && \
+    rm -rf /tmp/*
 
-# Configure Nginx to handle frontend routing
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Run nginx as root for simplicity (for now)
+# This is not ideal for production, but works around permission issues with Docker volumes
 
 EXPOSE 80
 

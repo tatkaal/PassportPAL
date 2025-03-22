@@ -25,7 +25,7 @@ function App() {
   useEffect(() => {
     const checkApiStatus = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/status");
+        const response = await axios.get("/api/status");
         if (response.data.status === "online") {
           setApiStatus("online");
           loadThumbnails();
@@ -42,7 +42,7 @@ function App() {
         SAMPLE_IMAGES.map(async (path) => {
           try {
             const res = await fetch(
-              `http://localhost:5000/api/get-sample?path=${encodeURIComponent(
+              `/api/get-sample?path=${encodeURIComponent(
                 path
               )}`,
               { method: "GET" }
@@ -91,7 +91,7 @@ function App() {
   const handleSelectSampleImage = async (imagePath) => {
     try {
       setLoading(true);
-      const apiUrl = `http://localhost:5000/api/get-sample?path=${encodeURIComponent(
+      const apiUrl = `/api/get-sample?path=${encodeURIComponent(
         imagePath
       )}`;
       const response = await fetch(apiUrl);
@@ -131,7 +131,7 @@ function App() {
 
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/analyze",
+        "/api/analyze",
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },
