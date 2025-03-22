@@ -1,0 +1,28 @@
+services:
+  backend:
+    build: ./backend
+    container_name: passport-pal-backend
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./backend/samples:/app/samples
+    restart: unless-stopped
+    environment:
+      - PYTHONUNBUFFERED=1
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/api/status"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  frontend:
+    build: ./frontend
+    container_name: passport-pal-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+    environment:
+      - BACKEND_URL=http://backend:5000

@@ -30,6 +30,7 @@ data/images/*/
 !data/samples/
 data/annotated_images/*
 data/cropped_images/*
+data/final_classification_dataset/*
 notebooks/runs/
 notebooks/wandb/
 checkpoints/

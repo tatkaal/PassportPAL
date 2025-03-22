@@ -9,8 +9,8 @@ from tqdm import tqdm
 import matplotlib.pyplot as plt
 from sklearn.metrics import confusion_matrix, classification_report, precision_recall_fscore_support, accuracy_score
 import seaborn as sns
-from models import CustomCNNModel, create_efficient_net_b0, create_resnet50, create_vision_transformer
 import pandas as pd
+import wandb
 
 def train_model(model, dataloaders, criterion, optimizer, scheduler=None, 
                 num_epochs=25, device='cuda', save_dir='checkpoints', 
@@ -132,6 +132,19 @@ def train_model(model, dataloaders, criterion, optimizer, scheduler=None,
                     early_stopping_counter = 0
                 else:
                     early_stopping_counter += 1
+                    
+            if phase == 'train':
+                wandb.log({
+                    'Epoch': epoch + 1,
+                    'Train Loss': epoch_loss,
+                    'Train Accuracy': epoch_acc.item()
+                })
+            else:
+                wandb.log({
+                    'Epoch': epoch + 1,
+                    'Validation Loss': epoch_loss,
+                    'Validation Accuracy': epoch_acc.item()
+                })
         
         # Save checkpoint every 5 epochs
         if (epoch + 1) % 5 == 0:
