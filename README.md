@@ -1,11 +1,9 @@
-# 🛂 PassportPAL: Multi-stage Identity Document Classification System 
+# 🛂 PassportPAL: Multi-stage Identity Document Classification System
 
 <div align="center">
   <img src="dataset/samples/analyzed_image_ui.jpg" alt="PassportPAL User Interface">
   <p><em>PassportPAL in action: Intelligent ID document classification with precision and ease</em></p>
 </div>
-
-PassportPAL is a simple multi-stage document classification system that leverages cutting-edge deep learning to accurately detect, segment, and classify identity documents from different countries. Built with a modern tech stack and containerized for seamless deployment, PassportPAL offers a complete solution for automated identity document processing.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.10](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org/downloads/release/python-3120/)
@@ -13,16 +11,6 @@ PassportPAL is a simple multi-stage document classification system that leverage
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.0.1-EE4C2C.svg)](https://pytorch.org)
 [![React 18](https://img.shields.io/badge/React-18.2.0-61DAFB.svg)](https://reactjs.org)
 [![Docker](https://img.shields.io/badge/Docker-Compose-2496ED.svg)](https://www.docker.com)
-
-## 🌟 Features
-
-- **📊 Dual-Stage ML Pipeline**: Document segmentation followed by precise classification
-- **🔍 High Accuracy**: Classification performance with 98.67% accuracy, 98.75% precision, 98.67% recall, and 98.67% F1 score
-- **⚡ Real-time Processing**: Optimized for speed with efficient inference
-- **🖼️ Interactive UI**: Intuitive interface for document upload and analysis
-- **🧰 Sample Gallery**: Pre-loaded examples for immediate testing
-- **🚢 Containerized Deployment**: Simplified setup with Docker and Docker Compose
-- **📝 Comprehensive Documentation**: Detailed guides for developers and users
 
 ## 📋 Table of Contents
 
@@ -37,6 +25,7 @@ PassportPAL is a simple multi-stage document classification system that leverage
 
 ---
 
+<a id="project-structure"></a>
 ## 📁 Project Structure
 
 ```
@@ -54,7 +43,7 @@ PassportPAL/
 │       └── failed_approaches.ipynb
 ├── development/
 │   ├── setup_windows.py
-|   ├── setup_unix.py 
+│   ├── setup_unix.py 
 ├── backend/
 └── frontend/
 └── run_unix.py
@@ -63,6 +52,7 @@ PassportPAL/
 
 ---
 
+<a id="running-the-application"></a>
 ## 🚀 Running the Application
 
 <div align="center">
@@ -127,6 +117,7 @@ PassportPAL/
 
 ---
 
+<a id="development-guide"></a>
 ## 💻 Development Guide
 
 ### Manual Setup (For development purposes)
@@ -148,6 +139,7 @@ python setup_unix.py
 
 ---
 
+<a id="system-architecture"></a>
 ## 🏗️ System Architecture
 
 PassportPAL employs a sophisticated architecture that seamlessly integrates machine learning with modern web technologies:
@@ -197,6 +189,7 @@ flowchart TB
 
 ---
 
+<a id="technology-stack"></a>
 ## 🔧 Technology Stack
 
 **Backend**: Python 3.10, FastAPI, PyTorch, OpenCV, Ultralytics YOLOv11, Albumentations  
@@ -205,6 +198,7 @@ flowchart TB
 
 ---
 
+<a id="machine-learning-pipeline"></a>
 ## 🧠 Machine Learning Pipeline
 
 PassportPAL implements a **two-stage** machine learning pipeline:
@@ -302,23 +296,14 @@ Classifies the segmented document into one of 10 document types.
 
 ---
 
-### Dataset Challenges
-
-<div align="center">
-  <img src="dataset/samples/dataset-variation1-muticolor-object.jpg" alt="Dataset Variation 1" width="30%">
-  <img src="dataset/samples/dataset-variation2-spoof-card-image-and-background-text.jpg" alt="Dataset Variation 2" width="30%">
-  <img src="dataset/samples/dataset-variation3-with-multiple-edges.jpg" alt="Dataset Variation 3" width="30%">
-  <p><em>Dataset variations: Handling multicolor objects, background text interference, and multiple edges</em></p>
-</div>
-
----
-
+<a id="license"></a>
 ## 📜 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
 
+<a id="acknowledgments"></a>
 ## 🙏 Acknowledgments
 
 - Ultralytics for the YOLO model architecture
