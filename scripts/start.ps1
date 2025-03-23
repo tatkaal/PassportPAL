@@ -40,8 +40,6 @@ if ($port5000InUse) {
 Set-Location $rootDir
 
 # Check existing containers and images
-$backendExists = docker ps -a --filter "name=passport-pal-backend" --format "{{.Names}}" | Select-String "passport-pal-backend"
-$frontendExists = docker ps -a --filter "name=passport-pal-frontend" --format "{{.Names}}" | Select-String "passport-pal-frontend"
 $backendImageExists = docker images "passport-pal-backend" -q
 $frontendImageExists = docker images "passport-pal-frontend" -q
 

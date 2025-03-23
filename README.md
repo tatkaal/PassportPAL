@@ -89,7 +89,14 @@ PassportPAL/
    cd passportpal
    ```
 
-2. **Start the application using the script that downloads the models and runs Docker Compose**:
+2. **Install and Start the application by running below script**:
+   **What does the script do?**
+      - Checks if docker enginer exists
+      - Downloads the segmentation and classification model from gdrive
+      - Checks if the default ports (5000/80) are available
+      - Runs docker compose build
+      - Prompts build options if image already exists
+      - Runs the container
 
    On Windows:
    ```powershell
@@ -233,11 +240,46 @@ PassportPAL implements a **two-stage** machine learning pipeline:
   <p><em>Document segmentation in action: Precisely identifying document boundaries</em></p>
 </div>
 
-**Segmentation Model Training Details**  
+### Segmentation Model Training Details
 - **Architecture**: YOLOv11m-seg  
 - **Dataset**: 307 custom-annotated images  
-- **Data Split**: 215 training, 61 validation, 31 testing  
-- **mAP50**: 99.5% on validation data  
+- **Data Split**: 215 training, 61 validation, 31 testing
+- **Annotation Process**: Initial auto-annotation through Roboflow with manual verification
+- **Augmentations**: Applied 5× multiplication to training set only
+  - Flip vertical
+  - 90° rotation
+  - ±15° rotation
+  - ±10° horizontal and vertical shear
+  - ±18° hue adjustment
+  - ±24% brightness variation
+  - ±15% exposure variation
+  - Gaussian blur and noise
+
+**📊 Performance Metrics**
+
+**Training:**
+```
+precision(B): 0.99012
+recall(B): 1.0
+mAP50(B): 0.99560
+mAP50-95(B): 0.99350
+precision(M): 0.99012
+recall(M): 1.0
+mAP50(M): 0.99560
+mAP50-95(M): 0.99430
+```
+
+**Test:**
+```
+precision(B): 0.99012
+recall(B): 1.0
+mAP50(B): 0.99600
+mAP50-95(B): 0.99480
+precision(M): 0.99012
+recall(M): 1.0
+mAP50(M): 0.99600
+mAP50-95(M): 0.99520
+```
 
 <div align="center">
   <img src="dataset/samples/segmentaion-training-metrics-chart.png" alt="Segmentation Training Metrics" width="80%">
@@ -258,12 +300,20 @@ Classifies the segmented document into one of 10 document types.
 - Multiple convolutional layers with batch normalization  
 - Global average pooling + dropout  
 - Fully connected output layer (10 classes)  
+- Adam optimizer with weight decay for regularization
+- Early stopping based on validation accuracy
 
-**Classification Performance**  
-- **Accuracy**: 98.67%  
-- **Precision**: 98.75%  
-- **Recall**: 98.67%  
-- **F1 Score**: 98.67%
+**📊 Performance Metrics**
+
+**Training:**
+  - train Loss: 0.0816 Acc: 0.9829
+  - val Loss: 0.0328 Acc: 0.9933
+
+**Test:**
+  - Accuracy: 98.67%  
+  - Precision: 98.75%  
+  - Recall: 98.67%  
+  - F1 Score: 98.67%
 
 <div align="center">
   <img src="dataset/samples/training-validation-loss-and-accuracy-graph-classification.png" alt="Classification Training Metrics" width="70%">
@@ -280,46 +330,6 @@ Classifies the segmented document into one of 10 document types.
   <img src="dataset/samples/dataset-variation3-with-multiple-edges.jpg" alt="Dataset Variation 3" width="30%">
   <p><em>Dataset variations: Handling multicolor objects, background text interference, and multiple edges</em></p>
 </div>
-
----
-
-## 📊 Performance Metrics
-
-### Segmentation Model
-
-**Training:**
-```
-precision(B): 0.98274
-recall(B): 1.0
-mAP50(B): 0.99254
-mAP50-95(B): 0.99025
-precision(M): 0.98274
-recall(M): 1.0
-mAP50(M): 0.99254
-mAP50-95(M): 0.99173
-```
-
-**Test:**
-```
-Class     Images  Instances      Box(P          R      mAP50  mAP50-95)     Mask(P          R      mAP50  mAP50-95):
-all         61         60      0.983          1      0.995      0.993      0.983          1      0.995      0.994
-```
-
-### Classification Model
-
-**Training:**
-```
-train Loss: 0.0816 Acc: 0.9829
-val Loss: 0.0328 Acc: 0.9933
-```
-
-**Test:**
-```
-Accuracy: 0.9867
-Precision: 0.9875
-Recall: 0.9867
-F1 Score: 0.9867
-```
 
 ---
 
