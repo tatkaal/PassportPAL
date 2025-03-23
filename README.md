@@ -8,7 +8,7 @@
 PassportPAL is a simple multi-stage document classification system that leverages cutting-edge deep learning to accurately detect, segment, and classify identity documents from different countries. Built with a modern tech stack and containerized for seamless deployment, PassportPAL offers a complete solution for automated identity document processing.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Python 3.12](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org/downloads/release/python-3120/)
+[![Python 3.10](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org/downloads/release/python-3120/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.104.0-009688.svg)](https://fastapi.tiangolo.com)
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.0.1-EE4C2C.svg)](https://pytorch.org)
 [![React 18](https://img.shields.io/badge/React-18.2.0-61DAFB.svg)](https://reactjs.org)
@@ -26,15 +26,14 @@ PassportPAL is a simple multi-stage document classification system that leverage
 
 ## 📋 Table of Contents
 
-1. [Project Structure](#-project-structure)
-2. [Running the Application](#-running-the-application)
-3. [Development Guide](#-development-guide)
-4. [System Architecture](#-system-architecture)
-5. [Technology Stack](#-technology-stack)
-6. [Machine Learning Pipeline](#-machine-learning-pipeline)
-7. [Performance Metrics](#-performance-metrics)
-8. [License](#-license)
-9. [Acknowledgments](#-acknowledgments)
+1. [Project Structure](#project-structure)
+2. [Running the Application](#running-the-application)
+3. [Development Guide](#development-guide)
+4. [System Architecture](#system-architecture)
+5. [Technology Stack](#technology-stack)
+6. [Machine Learning Pipeline](#machine-learning-pipeline)
+7. [License](#license)
+8. [Acknowledgments](#acknowledgments)
 
 ---
 
@@ -53,17 +52,13 @@ PassportPAL/
 │   └── segmentation/
 │       ├── roi_instance_segmentation.ipynb
 │       └── failed_approaches.ipynb
-├── scripts/
-│   ├── start.ps1
-│   ├── start.sh
-│   ├── start_without_docker.ps1
-│   ├── start_without_docker.sh
-│   ├── docker-cleanup.ps1
-│   ├── docker-cleanup.sh
-│   ├── download_models.ps1
-│   └── download_models.sh
+├── development/
+│   ├── setup_windows.py
+|   ├── setup_unix.py 
 ├── backend/
 └── frontend/
+└── run_unix.py
+└── run_windows.py
 ```
 
 ---
@@ -80,90 +75,75 @@ PassportPAL/
 - **Docker** (version 20.10.0 or higher)
 - **Docker Compose** (version 2.0.0 or higher)
 - **Git** (for cloning the repository)
+- **Python** (3.10+)
 
-### Quick Start
-
-1. **Clone the repository**:
-   ```bash
-   git clone https://github.com/tatkaal/passportpal.git
-   cd passportpal
-   ```
-
-2. **Install and Start the application by running below script**:
-   **What does the script do?**
-      - Checks if docker enginer exists
-      - Downloads the segmentation and classification model from gdrive
-      - Checks if the default ports (5000/80) are available
-      - Runs docker compose build
-      - Prompts build options if image already exists
-      - Runs the container
-
-   On Windows:
-   ```powershell
-   .\scripts\start.ps1
-   ```
-
-   On Linux/Mac:
-   ```bash
-   chmod +x ./scripts/start.sh
-   ./scripts/start.sh
-   ```
-   (Build time is roughly 3 minutes with an image size of around 3GB)
-
-3. **Access the web interface**:
-   ```bash
-   http://localhost
-   ```
-
-### User Workflow
+### Application Workflow
 
 1. **Upload an image**: Drag and drop or click to select an ID document image.
 2. **Processing**: The system automatically detects, segments, and classifies the document.
 3. **Results**: View the classification result, confidence scores, and segmentation output.
 4. **Sample Gallery**: Try pre-loaded examples by clicking on the sample images.
 
+### Quick Start
+
+1. **Start Docker/Docker desktop**
+
+2. **Clone the repository**:
+   ```bash
+   git clone https://github.com/tatkaal/passportpal.git
+   ```
+   ```bash
+   cd passportpal
+   ```
+
+3. **Install and Start the application by running the script in the terminal**:
+
+   On Windows:
+   ```powershell
+   python run_windows.py
+   ```
+
+   On Linux/Mac:
+   ```bash
+   python run_unix.py
+   ```
+
+   **What does the script do?**
+   - Checks if Docker is running
+   - Downloads the segmentation and classification models from gdrive
+   - Checks if the default ports (5000/80) are available
+   - Runs Docker Compose build
+   - Prompts build options if the image already exists
+   - Runs the container
+   - *(Build time is roughly 3 minutes with an image size of around 3GB)*
+
+4. **Access the web interface**:
+   ```bash
+   http://localhost
+   ```
+
+### Manual Installation
+- For detailed instructions, please check the [ManualInstallation.md](ManualInstallation.md) file.
+
 ---
 
 ## 💻 Development Guide
 
-### Manual Setup (Without Docker)
+### Manual Setup (For development purposes)
 
-For development purposes, you can run the components separately:
+For development purposes, you can run both Frontend and Backend components separately:
+```powershell
+cd development
+```
 
 On Windows:
 ```powershell
-.\scripts\start_without_docker.ps1
+python setup_windows.py
 ```
 
 On Linux/Mac:
 ```bash
-chmod +x ./scripts/start_without_docker.sh
-./scripts/start_without_docker.sh
-```
-
-### Model Download
-
-If you want to manually download the machine learning models:
-
-```bash
-# On Windows
-.\scripts\download_models.ps1
-
-# On Linux/Mac
-chmod +x ./scripts/download_models.sh
-./scripts/download_models.sh
-```
-
-### Clean Docker Environment
-
-If you encounter persistent issues, clean up your Docker environment:
-
-```bash
-# On Windows
-.\scripts\docker-cleanup.ps1
-
-# On Linux/Mac
-./scripts/docker-cleanup.sh
+python setup_unix.py
 ```
 
 ---
@@ -219,7 +199,7 @@ flowchart TB
 
 ## 🔧 Technology Stack
 
-**Backend**: Python 3.12, FastAPI, PyTorch, OpenCV, Ultralytics YOLOv11, Albumentations  
+**Backend**: Python 3.10, FastAPI, PyTorch, OpenCV, Ultralytics YOLOv11, Albumentations  
 **Frontend**: React 18, TailwindCSS, Vite, Axios, React-Dropzone  
 **DevOps**: Docker, Docker Compose, Nginx
 
@@ -300,7 +280,7 @@ Classifies the segmented document into one of 10 document types.
 - Multiple convolutional layers with batch normalization  
 - Global average pooling + dropout  
 - Fully connected output layer (10 classes)  
-- Adam optimizer with weight decay for regularization
+- Adam optimizer with weight decay for regularization  
 - Early stopping based on validation accuracy
 
 **📊 Performance Metrics**

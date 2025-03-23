@@ -44,7 +44,6 @@ RUN mkdir -p /app/models /app/frontend/public/samples
 
 # Copy application code (only what's needed)
 COPY backend/main.py backend/dataset.py ./
-COPY scripts/download_models.sh ./
 COPY backend/models/ /app/models/
 
 # Set environment variables for performance and CPU-only mode
