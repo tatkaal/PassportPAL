@@ -97,6 +97,10 @@ PassportPAL/
    ```bash
    python run_unix.py
    ```
+   *(Note: Run with sudo, if you get docker permission error)*
+   ```bash
+   sudo python run_unix.py
+   ```
 
    **What does the script do?**
    - Checks if Docker is running

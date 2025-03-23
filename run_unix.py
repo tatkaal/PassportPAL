@@ -123,13 +123,6 @@ def download_models():
     finally:
         shutil.rmtree(tmp_dir)
 
-def check_docker_running():
-    try:
-        subprocess.check_output(["docker", "info"], stderr=subprocess.STDOUT)
-    except subprocess.CalledProcessError:
-        print("Error: Docker does not appear to be running. Please start Docker.")
-        sys.exit(1)
-
 def check_port_in_use(port):
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         return s.connect_ex(('localhost', port)) == 0
@@ -207,7 +200,6 @@ def main():
     ensure_requests()
     ensure_docker()
     download_models()
-    check_docker_running()
     
     if check_port_in_use(80):
         print("Warning: Port 80 is already in use. The frontend service might fail to start.")
