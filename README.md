@@ -56,8 +56,17 @@ PassportPAL/
 ## 🚀 Running the Application
 
 <div align="center">
-  <img src="dataset/samples/ui_landing_page.jpg" alt="Analyzed Image in UI" width="80%">
+  <img src="dataset/samples/ui_landing_page.jpg" alt="Analyzed Image in UI">
   <p><em>Landing page: The UI displays an option to upload images and sample images to choose from.</em></p>
+</div>
+
+
+#### Inference
+
+<div align="center">
+  <img src="dataset/samples/raw_data.jpg" alt="sent image" width="49%">
+  <img src="dataset/samples/converted_data.jpg" alt="received image" width="49%">
+  <p><em>Passport/ID ROI Segmented and Classified</em></p>
 </div>
 
 ### Prerequisites
@@ -297,6 +306,19 @@ Classifies the segmented document into one of 10 document types.
   <img src="dataset/samples/training-validation-loss-and-accuracy-graph-classification.png" alt="Classification Training Metrics" width="70%">
   <p><em>Classification model training metrics</em></p>
 </div>
+
+---
+
+### Dataset Challenges
+
+<div align="center">
+  <img src="dataset/samples/dataset-variation1-muticolor-object.jpg" alt="Dataset Variation 1" width="30%">
+  <img src="dataset/samples/dataset-variation2-spoof-card-image-and-background-text.jpg" alt="Dataset Variation 2" width="30%">
+  <img src="dataset/samples/dataset-variation3-with-multiple-edges.jpg" alt="Dataset Variation 3" width="30%">
+  <p><em>Dataset variations: Handling multicolor objects, background text interference, and multiple edges</em></p>
+</div>
+
+---
 
 ---
 
